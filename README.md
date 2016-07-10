@@ -43,7 +43,7 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
         ]
       }
 ```
-    - **Default**:
+#####   Default:
 ```javascript
       zoomInterval: [
         {start: 2, end: 2, interval: 40},
