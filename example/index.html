@@ -26,8 +26,8 @@
     <script src="../leaflet.latlng-graticule.js"></script>
 
 	<script>
-		//var _base_tile_url = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
-        var _base_tile_url = 'http://{s}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png',
+		var _base_tile_url = 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        //var _base_tile_url = 'http://{s}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png',
             map = new L.Map('map',{zoomControl:false}).setView([24.0, 121], 6);
         var baselayer = L.tileLayer(_base_tile_url, {
             unloadInvisibleTiles: false
