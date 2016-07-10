@@ -31,7 +31,7 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
 - **font**: Font Style for the tick label. Default `12px Verdana`
 - **fontColor**: Color of the tick label. Default `#aaa`
 - **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below:
-```javascript
+    ```javascript
       zoomInterval: {
         latitude: [
           {start: 4, end: 6, interval: 5},
@@ -42,9 +42,9 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
           {start: 7, end: 20, interval: 2}
         ]
       }
-```
-#####   Default:
-```javascript
+    ```
+    - **Default**:
+    ```javascript
       zoomInterval: [
         {start: 2, end: 2, interval: 40},
         {start: 3, end: 3, interval: 20},
@@ -52,7 +52,7 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
         {start: 5, end: 7, interval: 5},
         {start: 8, end: 20, interval: 1}
       ]
-```
+    ```
 
 #### Special Options
 Some of the projections (like Lambert) is no straight line, set those options to draw a polyline graticule.
