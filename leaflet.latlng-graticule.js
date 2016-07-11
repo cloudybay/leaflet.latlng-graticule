@@ -64,11 +64,11 @@ L.LatLngGraticule = L.Class.extend({
     onAdd: function (map) {
         this._map = map;
 
-        if (!this._canvas) {
+        if (!this._container) {
             this._initCanvas();
         }
 
-        map._panes.overlayPane.appendChild(this._canvas);
+        map._panes.overlayPane.appendChild(this._container);
 
         map.on('viewreset', this._reset, this);
         map.on('move', this._reset, this);
@@ -82,7 +82,7 @@ L.LatLngGraticule = L.Class.extend({
     },
 
     onRemove: function (map) {
-        map.getPanes().overlayPane.removeChild(this._canvas);
+        map.getPanes().overlayPane.removeChild(this._container);
 
         map.off('viewreset', this._reset, this);
         map.off('move', this._reset, this);
@@ -124,7 +124,9 @@ L.LatLngGraticule = L.Class.extend({
     },
 
     _initCanvas: function () {
-        this._canvas = L.DomUtil.create('canvas', 'leaflet-image-layer');
+        this._container = L.DomUtil.create('div', 'leaflet-image-layer');
+
+        this._canvas = L.DomUtil.create('canvas', '');
 
         if (this._map.options.zoomAnimation && L.Browser.any3d) {
             L.DomUtil.addClass(this._canvas, 'leaflet-zoom-animated');
@@ -133,6 +135,8 @@ L.LatLngGraticule = L.Class.extend({
         }
 
         this._updateOpacity();
+
+        this._container.appendChild(this._canvas);
 
         L.extend(this._canvas, {
             onselectstart: L.Util.falseFn,
@@ -143,6 +147,7 @@ L.LatLngGraticule = L.Class.extend({
 
     _animateZoom: function (e) {
         var map = this._map,
+            container = this._container,
             canvas = this._canvas,
             scale = map.getZoomScale(e.zoom),
             nw = map.containerPointToLatLng([0, 0]),
@@ -152,16 +157,20 @@ L.LatLngGraticule = L.Class.extend({
             size = map._latLngToNewLayerPoint(se, e.zoom, e.center)._subtract(topLeft),
             origin = topLeft._add(size._multiplyBy((1 / 2) * (1 - 1 / scale)));
 
-        canvas.style[L.DomUtil.TRANSFORM] =
+        container.style[L.DomUtil.TRANSFORM] =
                 L.DomUtil.getTranslateString(origin) + ' scale(' + scale + ') ';
     },
 
     _reset: function () {
-        var canvas = this._canvas,
+        var container = this._container,
+            canvas = this._canvas,
             size = this._map.getSize(),
             lt = this._map.containerPointToLayerPoint([0, 0]);
 
-        L.DomUtil.setPosition(canvas, lt);
+        L.DomUtil.setPosition(container, lt);
+
+        container.style.width = size.x + 'px';
+        container.style.height = size.y + 'px';
 
         canvas.width  = size.x;
         canvas.height = size.y;
