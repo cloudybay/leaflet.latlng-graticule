@@ -190,13 +190,6 @@ L.LatLngGraticule = L.Class.extend({
         L.DomUtil.setOpacity(this._canvas, this.options.opacity);
     },
 
-    _latLngToContainerPoint: function(map, latlng) {
-        var projectedPoint = map.project(L.latLng(latlng));
-        var lp = projectedPoint._subtract(map.getPixelOrigin());
-        var cp = map.layerPointToContainerPoint(lp);
-        return cp;
-    },
-
     __format_lat: function(lat) {
         if (this.options.latFormatTickLabel) {
             return this.options.latFormatTickLabel(lat);
@@ -282,7 +275,7 @@ L.LatLngGraticule = L.Class.extend({
     },
 
     __draw: function(label) {
-        function _parse_str_to_int(txt) {
+        function _parse_px_to_int(txt) {
             if (txt.length > 2) {
                 if (txt.charAt(txt.length-2) == 'p') {
                     txt = txt.substr(0, txt.length-2);
@@ -321,7 +314,7 @@ L.LatLngGraticule = L.Class.extend({
             var txtHeight = 12;
             try {
                 var _font_size = ctx.font.split(' ')[0];
-                txtHeight = _parse_str_to_int(_font_size);
+                txtHeight = _parse_px_to_int(_font_size);
             }
             catch(e) {}
 
@@ -332,30 +325,66 @@ L.LatLngGraticule = L.Class.extend({
             var rt = map.containerPointToLatLng(L.point(ww, 0));
             var rb = map.containerPointToLatLng(L.point(ww, hh));
 
-            var _lat_b = parseInt(rb.lat - 1, 10),
-                _lat_t = parseInt(lt.lat + 1, 10);
-            var _lon_l = parseInt(lt.lng - 1, 10),
-                _lon_r = parseInt(rt.lng + 1, 10);
+            var _lat_b = rb.lat,
+                _lat_t = lt.lat;
+            var _lon_l = lt.lng,
+                _lon_r = rt.lng;
 
-            if (_lat_b < -90) { _lat_b = -90; }
-            if (_lat_t > 90) { _lat_t = 90; }
+            var _point_per_lat = (_lat_t - _lat_b) / (hh * 0.2);
+            if (_point_per_lat < 1) { _point_per_lat = 1; }
+            if (_lat_b < -90) {
+                _lat_b = -90;
+            }
+            else {
+                _lat_b = parseInt(_lat_b - _point_per_lat, 10);
+            }
+
+            if (_lat_t > 90) {
+                _lat_t = 90;
+            }
+            else {
+                _lat_t = parseInt(_lat_t + _point_per_lat, 10);
+            }
+
+            var _point_per_lon = (_lon_r - _lon_l) / (ww * 0.2);
+            if (_point_per_lon < 1) { _point_per_lon = 1; }
+            if (_lon_l > 0 && _lon_r < 0) {
+                _lon_r += 360;
+            }
+            _lon_r = parseInt(_lon_r + _point_per_lon, 10);
+            _lon_l = parseInt(_lon_l - _point_per_lon, 10);
 
             var ll, latstr, lngstr, _lon_delta = 0.5;
             function __draw_lat_line(self, lat_tick) {
-                ll = self._latLngToContainerPoint(map, L.latLng(lat_tick, _lon_l));
+                ll = map.latLngToContainerPoint(L.latLng(lat_tick, _lon_l));
                 latstr = self.__format_lat(lat_tick);
                 txtWidth = ctx.measureText(latstr).width;
 
-                if (curvedLon) {
-                    if (typeof(curvedLon) == 'number') {
-                        _lon_delta = curvedLon;
+                if (curvedLat) {
+                    if (typeof(curvedLat) == 'number') {
+                        _lon_delta = curvedLat;
+                    }
+
+                    var __lon_left = _lon_l, __lon_right = _lon_r;
+                    if (ll.x > 0) {
+                        var __lon_left = map.containerPointToLatLng(L.point(0, ll.y));
+                        __lon_left = __lon_left.lng - _point_per_lon;
+                        ll.x = 0;
+                    }
+                    var rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+                    if (rr.x < ww) {
+                        __lon_right = map.containerPointToLatLng(L.point(ww, rr.y));
+                        __lon_right = __lon_right.lng + _point_per_lon;
+                        if (__lon_left > 0 && __lon_right < 0) {
+                            __lon_right += 360;
+                        }
                     }
 
                     ctx.beginPath();
                     ctx.moveTo(ll.x, ll.y);
                     var _prev_p = null;
-                    for (var j=_lon_l; j<_lon_r; j+=_lon_delta) {
-                        var rr = self._latLngToContainerPoint(map, L.latLng(i, j));
+                    for (var j=__lon_left; j<=__lon_right; j+=_lon_delta) {
+                        rr = map.latLngToContainerPoint(L.latLng(lat_tick, j));
                         ctx.lineTo(rr.x, rr.y);
 
                         if (self.options.showLabel && label && _prev_p != null) {
@@ -364,7 +393,7 @@ L.LatLngGraticule = L.Class.extend({
                                 var _y = rr.y - ((rr.y - _prev_p.y) * _s);
                                 ctx.fillText(latstr, 0, _y + (txtHeight/2));
                             }
-                            else if (_prev_p.x <= ww && rr.x > ww) {
+                            else if (_prev_p.x <= (ww-txtWidth) && rr.x > (ww-txtWidth)) {
                                 var _s = (rr.x - ww) / (rr.x - _prev_p.x);
                                 var _y = rr.y - ((rr.y - _prev_p.y) * _s);
                                 ctx.fillText(latstr, ww-txtWidth, _y + (txtHeight/2)-2);
@@ -376,7 +405,18 @@ L.LatLngGraticule = L.Class.extend({
                     ctx.stroke();
                 }
                 else {
-                    var rr = map.latLngToContainerPoint(L.latLng(lat_tick, _lon_r));
+                    var __lon_right = _lon_r;
+                    var rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+                    if (curvedLon) {
+                        __lon_right = map.containerPointToLatLng(L.point(0, rr.y));
+                        __lon_right = __lon_right.lng;
+                        rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+
+                        var __lon_left = map.containerPointToLatLng(L.point(ww, rr.y));
+                        __lon_left = __lon_left.lng;
+                        ll = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_left));
+                    }
+
                     ctx.beginPath();
                     ctx.moveTo(ll.x+1, ll.y);
                     ctx.lineTo(rr.x-1, rr.y);
@@ -407,20 +447,20 @@ L.LatLngGraticule = L.Class.extend({
                 txtWidth = ctx.measureText(lngstr).width;
                 var bb = map.latLngToContainerPoint(L.latLng(_lat_b, lon_tick));
 
-                if (curvedLat) {
-                    if (typeof(curvedLat) == 'number') {
-                        _lat_delta = curvedLat;
+                if (curvedLon) {
+                    if (typeof(curvedLon) == 'number') {
+                        _lat_delta = curvedLon;
                     }
 
                     ctx.beginPath();
                     ctx.moveTo(bb.x, bb.y);
                     var _prev_p = null;
                     for (var j=_lat_b; j<_lat_t; j+=_lat_delta) {
-                        var tt = self._latLngToContainerPoint(map, L.latLng(j, lon_tick));
+                        var tt = map.latLngToContainerPoint(L.latLng(j, lon_tick));
                         ctx.lineTo(tt.x, tt.y);
 
                         if (self.options.showLabel && label && _prev_p != null) {
-                            if (_prev_p.y > 0 && tt.y <= 0) {
+                            if (_prev_p.y > 8 && tt.y <= 8) {
                                 ctx.fillText(lngstr, tt.x - (txtWidth/2), txtHeight);
                             }
                             else if (_prev_p.y >= hh && tt.y < hh) {
@@ -433,7 +473,20 @@ L.LatLngGraticule = L.Class.extend({
                     ctx.stroke();
                 }
                 else {
-                    var tt = map.latLngToContainerPoint(L.latLng(_lat_t, lon_tick));
+                    var __lat_top = _lat_t;
+                    var tt = map.latLngToContainerPoint(L.latLng(__lat_top, lon_tick));
+                    if (curvedLat) {
+                        __lat_top = map.containerPointToLatLng(L.point(tt.x, 0));
+                        __lat_top = __lat_top.lat;
+                        if (__lat_top > 90) { __lat_top = 90; }
+                        tt = map.latLngToContainerPoint(L.latLng(__lat_top, lon_tick));
+
+                        var __lat_bottom = map.containerPointToLatLng(L.point(bb.x, hh));
+                        __lat_bottom = __lat_bottom.lat;
+                        if (__lat_bottom < -90) { __lat_bottom = -90; }
+                        bb = map.latLngToContainerPoint(L.latLng(__lat_bottom, lon_tick));
+                    }
+
                     ctx.beginPath();
                     ctx.moveTo(tt.x, tt.y+1);
                     ctx.lineTo(bb.x, bb.y-1);

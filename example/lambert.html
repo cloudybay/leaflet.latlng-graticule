@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leaflet Graticule</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.css" />
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.2/leaflet.ie.css" />
+    <![endif]-->
+    <style type="text/css">
+        html, body, #map { width: 100%; height: 100%; margin: 0; background: #fff; }
+    </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+
+</head>
+<body>
+    <div id="map"></div>
+
+    <script type="text/javascript" src="lib/proj4js-compressed.js"></script>
+    <script type="text/javascript" src="lib/proj4leaflet.js"></script>
+    <script type="text/javascript" src="custom.geo.json"></script>
+    <script src="../leaflet.latlng-graticule.js"></script>
+
+    <script type="text/javascript">
+
+var lcc_attrs = {
+    proj4string: '+a=6378137.0 +b=6356752.3142 +y_0=3462665.93846 +lon_0=120.0 +proj=lcc +x_0=5752704.73052 +units=m +lat_2=30.0 +lat_1=10.0 +lat_0=25.0',
+    resolutions: [
+        0.000000,0.000000,24197.673780,12098.836890,6049.418445,3024.709222,1493.683567,742.259932
+    ],
+    bounds: (0.0, 0.0, 12098836.88981346, 10618170.208304904),
+    zoom: {
+        min: 2,
+        max: 7
+    }
+};
+
+    var transformation = new L.Transformation(1, 21136.401573461, -1, 10718170.208304904);
+
+    var lcc_crs = new L.Proj.CRS('EPSG:2154', lcc_attrs.proj4string,
+        {
+            transformation: transformation,
+            resolutions: lcc_attrs.resolutions //rss
+        }
+    );
+    var map = L.map('map', {
+        maxZoom: lcc_attrs.zoom.max, //6,
+        minZoom: lcc_attrs.zoom.min, //0,
+        crs: lcc_crs,
+        continuousWorld: false,
+        worldCopyJump: false,
+        maxBounds: [[-20, 40], [60, 180]]
+    }).setView([25, 121], 4);
+
+    L.geoJson(countries, {
+        style: {
+            color: '#000',
+            weight: 0.5,
+            opacity: 1,
+            fillColor: '#ccc',
+            fillOpacity: 1
+        }
+    }).addTo(map);
+
+    L.latlngGraticule({
+        showLabel: true,
+        latLineCurved: 2
+    }).addTo(map);
+
+    </script>
+</body>
+</html>
