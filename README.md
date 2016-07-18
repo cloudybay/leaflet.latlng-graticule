@@ -59,4 +59,4 @@ Some of the projections (like Lambert) is no straight line, set those options to
 - **lngLineCurved**: Interval of polyline. Deafult `0`
 - **latLineCurved**: Interval of polyline. Deafult `0`
 
-
+Check out the [Lambert projection example](https://cloudybay.github.io/leaflet.latlng-graticule/example/lambert.html).
