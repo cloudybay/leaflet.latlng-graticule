@@ -288,7 +288,8 @@ L.LatLngGraticule = L.Layer.extend({
             return 0;
         };
 
-        var canvas = this._canvas,
+        var self = this,
+            canvas = this._canvas,
             map = this._map,
             curvedLon = this.options.lngLineCurved,
             curvedLat = this.options.latLineCurved;
@@ -356,7 +357,7 @@ L.LatLngGraticule = L.Layer.extend({
 
             var ll, latstr, lngstr, _lon_delta = 0.5;
             function __draw_lat_line(self, lat_tick) {
-                ll = map.latLngToContainerPoint(L.latLng(lat_tick, _lon_l));
+                ll = self._latLngToCanvasPoint(L.latLng(lat_tick, _lon_l));
                 latstr = self.__format_lat(lat_tick);
                 txtWidth = ctx.measureText(latstr).width;
 
@@ -371,7 +372,7 @@ L.LatLngGraticule = L.Layer.extend({
                         __lon_left = __lon_left.lng - _point_per_lon;
                         ll.x = 0;
                     }
-                    var rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+                    var rr = self._latLngToCanvasPoint(L.latLng(lat_tick, __lon_right));
                     if (rr.x < ww) {
                         __lon_right = map.containerPointToLatLng(L.point(ww, rr.y));
                         __lon_right = __lon_right.lng + _point_per_lon;
@@ -384,7 +385,7 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.moveTo(ll.x, ll.y);
                     var _prev_p = null;
                     for (var j=__lon_left; j<=__lon_right; j+=_lon_delta) {
-                        rr = map.latLngToContainerPoint(L.latLng(lat_tick, j));
+                        rr = self._latLngToCanvasPoint(L.latLng(lat_tick, j));
                         ctx.lineTo(rr.x, rr.y);
 
                         if (self.options.showLabel && label && _prev_p != null) {
@@ -406,15 +407,15 @@ L.LatLngGraticule = L.Layer.extend({
                 }
                 else {
                     var __lon_right = _lon_r;
-                    var rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+                    var rr = self._latLngToCanvasPoint(L.latLng(lat_tick, __lon_right));
                     if (curvedLon) {
                         __lon_right = map.containerPointToLatLng(L.point(0, rr.y));
                         __lon_right = __lon_right.lng;
-                        rr = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_right));
+                        rr = self._latLngToCanvasPoint(L.latLng(lat_tick, __lon_right));
 
                         var __lon_left = map.containerPointToLatLng(L.point(ww, rr.y));
                         __lon_left = __lon_left.lng;
-                        ll = map.latLngToContainerPoint(L.latLng(lat_tick, __lon_left));
+                        ll = self._latLngToCanvasPoint(L.latLng(lat_tick, __lon_left));
                     }
 
                     ctx.beginPath();
@@ -445,7 +446,7 @@ L.LatLngGraticule = L.Layer.extend({
             function __draw_lon_line(self, lon_tick) {
                 lngstr = self.__format_lng(lon_tick);
                 txtWidth = ctx.measureText(lngstr).width;
-                var bb = map.latLngToContainerPoint(L.latLng(_lat_b, lon_tick));
+                var bb = self._latLngToCanvasPoint(L.latLng(_lat_b, lon_tick));
 
                 if (curvedLon) {
                     if (typeof(curvedLon) == 'number') {
@@ -456,7 +457,7 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.moveTo(bb.x, bb.y);
                     var _prev_p = null;
                     for (var j=_lat_b; j<_lat_t; j+=_lat_delta) {
-                        var tt = map.latLngToContainerPoint(L.latLng(j, lon_tick));
+                        var tt = self._latLngToCanvasPoint(L.latLng(j, lon_tick));
                         ctx.lineTo(tt.x, tt.y);
 
                         if (self.options.showLabel && label && _prev_p != null) {
@@ -474,17 +475,17 @@ L.LatLngGraticule = L.Layer.extend({
                 }
                 else {
                     var __lat_top = _lat_t;
-                    var tt = map.latLngToContainerPoint(L.latLng(__lat_top, lon_tick));
+                    var tt = self._latLngToCanvasPoint(L.latLng(__lat_top, lon_tick));
                     if (curvedLat) {
                         __lat_top = map.containerPointToLatLng(L.point(tt.x, 0));
                         __lat_top = __lat_top.lat;
                         if (__lat_top > 90) { __lat_top = 90; }
-                        tt = map.latLngToContainerPoint(L.latLng(__lat_top, lon_tick));
+                        tt = self._latLngToCanvasPoint(L.latLng(__lat_top, lon_tick));
 
                         var __lat_bottom = map.containerPointToLatLng(L.point(bb.x, hh));
                         __lat_bottom = __lat_bottom.lat;
                         if (__lat_bottom < -90) { __lat_bottom = -90; }
-                        bb = map.latLngToContainerPoint(L.latLng(__lat_bottom, lon_tick));
+                        bb = self._latLngToCanvasPoint(L.latLng(__lat_bottom, lon_tick));
                     }
 
                     ctx.beginPath();
@@ -512,6 +513,13 @@ L.LatLngGraticule = L.Layer.extend({
                 }
             }
         }
+    },
+
+    _latLngToCanvasPoint: function(latlng) {
+        map = this._map;
+        var projectedPoint = map.project(L.latLng(latlng));
+        projectedPoint._subtract(map.getPixelOrigin());
+        return L.point(projectedPoint).add(map._getMapPanePos());
     }
 
 });
