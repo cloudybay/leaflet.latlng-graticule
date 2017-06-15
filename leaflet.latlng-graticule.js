@@ -6,7 +6,7 @@
 
 (function (window, document, undefined) {
 
-L.LatLngGraticule = L.Class.extend({
+L.LatLngGraticule = L.Layer.extend({
     includes: L.Mixin.Events,
 
     options: {
