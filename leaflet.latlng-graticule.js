@@ -332,6 +332,10 @@ L.LatLngGraticule = L.Layer.extend({
                 _lon_r = rt.lng;
 
             var _point_per_lat = (_lat_t - _lat_b) / (hh * 0.2);
+            if (isNaN(_point_per_lat)) {
+                return;
+            }
+
             if (_point_per_lat < 1) { _point_per_lat = 1; }
             if (_lat_b < -90) {
                 _lat_b = -90;
