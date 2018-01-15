@@ -520,7 +520,7 @@ L.LatLngGraticule = L.Layer.extend({
     },
 
     _latLngToCanvasPoint: function(latlng) {
-        map = this._map;
+        var map = this._map;
         var projectedPoint = map.project(L.latLng(latlng));
         projectedPoint._subtract(map.getPixelOrigin());
         return L.point(projectedPoint).add(map._getMapPanePos());
