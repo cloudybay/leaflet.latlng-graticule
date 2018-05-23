@@ -152,13 +152,11 @@ L.LatLngGraticule = L.Layer.extend({
             scale = map.getZoomScale(e.zoom),
             nw = map.containerPointToLatLng([0, 0]),
             se = map.containerPointToLatLng([canvas.width, canvas.height]),
-
             topLeft = map._latLngToNewLayerPoint(nw, e.zoom, e.center),
             size = map._latLngToNewLayerPoint(se, e.zoom, e.center)._subtract(topLeft),
             origin = topLeft._add(size._multiplyBy((1 / 2) * (1 - 1 / scale)));
 
-        container.style[L.DomUtil.TRANSFORM] =
-                L.DomUtil.getTranslateString(origin) + ' scale(' + scale + ') ';
+        L.DomUtil.setTransform(this._container, origin, scale);
     },
 
     _reset: function () {
