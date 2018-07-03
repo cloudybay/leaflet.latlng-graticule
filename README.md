@@ -11,15 +11,16 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
 ### Usage example
 
 ```javascript
-    L.latlngGraticule({
-        showLabel: true,
-        zoomInterval: [
-            {start: 2, end: 3, interval: 30},
-            {start: 4, end: 4, interval: 10},
-            {start: 5, end: 7, interval: 5},
-            {start: 8, end: 10, interval: 1}
-        ]
-    }).addTo(map);
+L.latlngGraticule({
+    showLabel: true,
+    dashArray: [5, 5],
+    zoomInterval: [
+        {start: 2, end: 3, interval: 30},
+        {start: 4, end: 4, interval: 10},
+        {start: 5, end: 7, interval: 5},
+        {start: 8, end: 10, interval: 1}
+    ]
+}).addTo(map);
 ```
 
 
@@ -30,6 +31,7 @@ Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/exampl
 - **color**: The color of the graticule lines. Default `#aaa`
 - **font**: Font Style for the tick label. Default `12px Verdana`
 - **fontColor**: Color of the tick label. Default `#aaa`
+- **dashArray**: Used to achieve dashed lines. Default `[0,0]`
 - **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below:
 ```javascript
   zoomInterval: {

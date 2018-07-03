@@ -15,6 +15,7 @@
             weight: 0.8,
             color: '#aaa',
             font: '12px Verdana',
+            dashArray: [0,0],
             lngLineCurved: 0,
             latLineCurved: 0,
             zoomInterval: [
@@ -298,6 +299,7 @@
                 ctx.lineWidth = this.options.weight;
                 ctx.strokeStyle = this.options.color;
                 ctx.fillStyle = this.options.fontColor;
+                ctx.setLineDash(this.options.dashArray);
 
                 if (this.options.font) {
                     ctx.font = this.options.font;
