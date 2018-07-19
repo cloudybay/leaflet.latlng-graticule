@@ -1,3 +1,4 @@
+/* eslint-disable indent,semi */
 /**
  *  Create a Canvas as ImageOverlay to draw the Lat/Lon Graticule,
  *  and show the axis tick label on the edge of the map.
@@ -83,6 +84,7 @@
         },
 
         onRemove: function (map) {
+            L.DomUtil.remove(this._canvas);
 
             map.off('viewreset', this._reset, this);
             map.off('move', this._reset, this);
