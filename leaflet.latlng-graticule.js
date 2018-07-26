@@ -165,7 +165,6 @@
 
             L.DomUtil.setPosition(canvas, lt);
 
-
             canvas.width  = size.x;
             canvas.height = size.y;
             canvas.style.width  = size.x + 'px';
