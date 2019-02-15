@@ -25,7 +25,8 @@
                 {start: 4, end: 4, interval: 10},
                 {start: 5, end: 7, interval: 5},
                 {start: 8, end: 20, interval: 1}
-            ]
+            ],
+            sides: ['N', 'S', 'E', 'W']
         },
 
         initialize: function (options) {
@@ -190,10 +191,10 @@
 
             // todo: format type of float
             if (lat < 0) {
-                return '' + (lat*-1) + 'S';
+                return '' + (lat*-1) + sides[1];
             }
             else if (lat > 0) {
-                return '' + lat + 'N';
+                return '' + lat + sides[0];
             }
             return '' + lat;
         },
@@ -205,19 +206,19 @@
 
             // todo: format type of float
             if (lng > 180) {
-                return '' + (360 - lng) + 'W';
+                return '' + (360 - lng) + sides[3];
             }
             else if (lng > 0 && lng < 180) {
-                return '' + lng + 'E';
+                return '' + lng + sides[2];
             }
             else if (lng < 0 && lng > -180) {
-                return '' + (lng*-1) + 'W';
+                return '' + (lng*-1) + sides[3];
             }
             else if (lng == -180) {
                 return '' + (lng*-1);
             }
             else if (lng < -180) {
-                return '' + (360 + lng) + 'W';
+                return '' + (360 + lng) + sides[3];
             }
             return '' + lng;
         },
