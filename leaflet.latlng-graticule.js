@@ -308,7 +308,7 @@
                 var txtWidth = ctx.measureText('0').width;
                 var txtHeight = 12;
                 try {
-                    var _font_size = ctx.font.split(' ')[0];
+                    var _font_size = ctx.font.trim().split(' ')[0];
                     txtHeight = _parse_px_to_int(_font_size);
                 }
                 catch(e) {}
