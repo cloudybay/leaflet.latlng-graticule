@@ -32,6 +32,7 @@ L.latlngGraticule({
 - **font**: Font Style for the tick label. Default `12px Verdana`
 - **fontColor**: Color of the tick label. Default `#aaa`
 - **dashArray**: Used to achieve dashed lines. Default `[0,0]`
+- **sides**: Used to name sides of the world. Default `['N', 'S', 'E', 'W']`
 - **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below:
 ```javascript
   zoomInterval: {
