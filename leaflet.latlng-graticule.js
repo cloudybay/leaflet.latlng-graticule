@@ -190,10 +190,10 @@
 
             // todo: format type of float
             if (lat < 0) {
-                return '' + (lat*-1) + sides[1];
+                return '' + (lat*-1) + this.options.sides[1];
             }
             else if (lat > 0) {
-                return '' + lat + sides[0];
+                return '' + lat + this.options.sides[0];
             }
             return '' + lat;
         },
@@ -205,19 +205,19 @@
 
             // todo: format type of float
             if (lng > 180) {
-                return '' + (360 - lng) + sides[3];
+                return '' + (360 - lng) + this.options.sides[3];
             }
             else if (lng > 0 && lng < 180) {
-                return '' + lng + sides[2];
+                return '' + lng + this.options.sides[2];
             }
             else if (lng < 0 && lng > -180) {
-                return '' + (lng*-1) + sides[3];
+                return '' + (lng*-1) + this.options.sides[3];
             }
             else if (lng == -180) {
                 return '' + (lng*-1);
             }
             else if (lng < -180) {
-                return '' + (360 + lng) + sides[3];
+                return '' + (360 + lng) + this.options.sides[3];
             }
             return '' + lng;
         },
